@@ -9,7 +9,7 @@ byte paaData[12];
 
 void setup() {
   // Start serial
-  Serial.begin(115200);
+  Serial.begin(2000000);
   Serial.println("Qwiic OTOS Example 1 - Basic Readings");
 
   Wire.begin();
@@ -72,50 +72,8 @@ void loop() {
   }
 
   // print OTOS  registers
-  // for (int i = 0; i < sizeof(buffer); i++) {
-  //   if (buffer[i] < 0x10) { // 한 자리 수인 경우
-  //     Serial.print("0"); // 앞에 '0' 추가
-  //   }
-  //   Serial.print(buffer[i], HEX);
-  //   Serial.print(" ");
-  // }
+  Serial.write(buffer, sizeof(buffer));
 
-  memcpy(lsmData, buffer, 12);
-  memcpy(paaData, buffer + 12, 12);
-
-  // ref: https://github.com/sparkfun/SparkFun_Optical_Tracking_Odometry_Sensor/blob/737950b14e4e960c40c73ddc157a2b9d9fe7224e/Firmware/SFE/Src/main.cpp#L283
-  int16_t deltaRRaw = (lsmData[1] << 8) | lsmData[0];
-  int16_t deltaPRaw = (lsmData[3] << 8) | lsmData[2];
-  int16_t deltaHRaw = (lsmData[5] << 8) | lsmData[4];
-  int16_t accelXRaw = (lsmData[7] << 8) | lsmData[6];
-  int16_t accelYRaw = (lsmData[9] << 8) | lsmData[8];
-  int16_t accelZRaw = (lsmData[11] << 8) | lsmData[10];
-  int16_t deltaXRaw = (paaData[3] << 8) | paaData[2];
-  int16_t deltaYRaw = (paaData[5] << 8) | paaData[4];
-
-  // LSM6DSO gyro
-  Serial.print(deltaRRaw);
-  Serial.print(", ");
-  Serial.print(deltaPRaw);
-  Serial.print(", ");
-  Serial.print(deltaHRaw);
-  Serial.print(" ");
-
-  // LSM6DSO accel
-  Serial.print(accelXRaw);
-  Serial.print(", ");
-  Serial.print(accelYRaw);
-  Serial.print(", ");
-  Serial.print(accelZRaw);
-  Serial.print(" ");
-
-  // paa5160E1 optical flow 
-  Serial.print(deltaXRaw);
-  Serial.print(", ");
-  Serial.print(deltaYRaw);
-  Serial.println();
-  
-  // TODO: need to convert unit, ref: https://github.com/sparkfun/Qwiic_OTOS_Py/blob/master/qwiic_otos.py
-
+  // TODO: Decide proper amount of the delay after testing. 
   delay(2);
 }

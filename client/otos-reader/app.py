@@ -21,6 +21,9 @@ ser = serial.Serial(port, 2000000)
 ser.write(b'\r\n')
 print(ser.readline())
 
+# print header in one line with fixed width and separated by comma
+print(f'deltaR, deltaP, deltaH, accelX, accelY, accelZ, deltaX, deltaY')
+
 # loop
 while True:
     # Read 24 bytes from serial port
@@ -75,8 +78,9 @@ while True:
     deltaX = deltaXRaw * _rawToMeterX
     deltaY = deltaYRaw * _rawToMeterY
 
-    # print in one line with fixed width
-    print(f'deltaR: {deltaR:5.2f} deltaP: {deltaP:5.2f} deltaH: {deltaH:5.2f} accelX: {accelX:5.2f} accelY: {accelY:5.2f} accelZ: {accelZ:5.2f} deltaX: {deltaX:5.5f} deltaY: {deltaY:5.5f}')
+
+    # print in one line with fixed width and only values separated by comma the decimal point is fixed to 5.5
+    print(f'{deltaR:5.5f}, {deltaP:5.5f}, {deltaH:5.5f}, {accelX:5.5f}, {accelY:5.5f}, {accelZ:5.5f}, {deltaX:5.5f}, {deltaY:5.5f}')
 
     # Read key from keyboard and quit if 'q' is pressed
     c = key.read()

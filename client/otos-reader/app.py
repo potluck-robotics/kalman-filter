@@ -40,8 +40,44 @@ while True:
     deltaYRaw = int.from_bytes(data[16:18], byteorder='little', signed=True)
 
     # print in one line with fixed width
-    print(f'deltaR: {deltaRRaw:5d} deltaP: {deltaPRaw:5d} deltaH: {deltaHRaw:5d} accelX: {accelXRaw:5d} accelY: {accelYRaw:5d} accelZ: {accelZRaw:5d} deltaX: {deltaXRaw:5d} deltaY: {deltaYRaw:5d}')
+    #print(f'deltaR: {deltaRRaw:5d} deltaP: {deltaPRaw:5d} deltaH: {deltaHRaw:5d} accelX: {accelXRaw:5d} accelY: {accelYRaw:5d} accelZ: {accelZRaw:5d} deltaX: {deltaXRaw:5d} deltaY: {deltaYRaw:5d}')
+
+    # convert sensor data to proper units
+
+    # paa scale factor: 20k dpi
+    # Set PAA5160 resolution to max (20k dpi)
+    # Compute the raw to inch and meter conversion factors
+    resX = 199.0
+    resY = 199.0
+    _rawToInchX = 1.0 / ((resX + 1.0) * 100.0)
+    _rawToInchY = 1.0 / ((resY + 1.0) * 100.0)
+    _rawToMeterX = _rawToInchX * 0.0254
+    _rawToMeterY = _rawToInchY * 0.0254
+
+    # lsm scale factor: gyro 16g and accel 2000dps
+    # Convert from degrees to radians (pi/180 = 0.01745329252)
+    kLsm6dsoRawToDps2000 = 70e-3
+    kLsm6dsoRawToG16g = 0.488e-3
+
+    _rawToDps = kLsm6dsoRawToDps2000
+    _rawToG = kLsm6dsoRawToG16g
+
+    _rawToRps = _rawToDps * 0.01745329252 # 0.01745329252 = pi/180
+    _rawToMps2 = _rawToG * 9.80665 # 9.80665 m/s^2 = 1G
     
+    # raw data to proper units
+    deltaR = deltaRRaw * _rawToRps
+    deltaP = deltaPRaw * _rawToRps
+    deltaH = deltaHRaw * _rawToRps
+    accelX = accelXRaw * _rawToMps2
+    accelY = -(accelYRaw * _rawToMps2)
+    accelZ = accelZRaw * _rawToMps2
+    deltaX = deltaXRaw * _rawToMeterX
+    deltaY = deltaYRaw * _rawToMeterY
+
+    # print in one line with fixed width
+    print(f'deltaR: {deltaR:5.2f} deltaP: {deltaP:5.2f} deltaH: {deltaH:5.2f} accelX: {accelX:5.2f} accelY: {accelY:5.2f} accelZ: {accelZ:5.2f} deltaX: {deltaX:5.5f} deltaY: {deltaY:5.5f}')
+
     # Read key from keyboard and quit if 'q' is pressed
     c = key.read()
     if c == 'q':
